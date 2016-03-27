@@ -1,0 +1,10 @@
+services:
+  - mongodb
+
+language: node_js
+
+node_js:
+  - "4"
+  - "node"
+
+sudo: false

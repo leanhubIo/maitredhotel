@@ -4,7 +4,9 @@
   "description": "always here to gently welcome you",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "lab -cL -t 100 -a code",
+    "test:coverage": "lab -cL -t 100 -r console -o stdout -r html -o coverage.html -a code",
+    "preversion": "nsp check && ncu && npm test"
   },
   "repository": {
     "type": "git",
@@ -15,5 +17,19 @@
   "bugs": {
     "url": "https://github.com/leanhubIo/maitredhotel/issues"
   },
-  "homepage": "https://github.com/leanhubIo/maitredhotel#readme"
+  "homepage": "https://github.com/leanhubIo/maitredhotel#readme",
+  "dependencies": {
+    "bell": "^7.3.0",
+    "boom": "^3.1.2",
+    "hapi-auth-bearer-token": "^4.0.2",
+    "http-status-codes": "^1.0.6",
+    "mongoose": "^4.4.10"
+  },
+  "devDependencies": {
+    "code": "^2.1.1",
+    "glue": "^3.2.0",
+    "lab": "^10.3.0",
+    "npm-check-updates": "^2.6.1",
+    "nsp": "^2.2.1"
+  }
 }
