@@ -97,7 +97,7 @@ describe('UserService.save', () => {
 
 describe('UserService.read', () => {
 
-    it('should read an existing user', { plan: 2 }, () => {
+    it('should read an existing user', { plan: 3 }, () => {
 
         const user = new User({
             githubid: 'x',
@@ -111,6 +111,7 @@ describe('UserService.read', () => {
 
                 expect(usr).to.exist();
                 expect(usr.username).to.equal('u1');
+                expect(usr.githubid).to.not.exist();
             });
     });
 
@@ -127,7 +128,7 @@ describe('UserService.read', () => {
 
 describe('UserService.update', () => {
 
-    it('should update an existing user', { plan: 4 }, () => {
+    it('should update an existing user', { plan: 5 }, () => {
 
         const user = new User({
             githubid: 'x',
@@ -141,6 +142,7 @@ describe('UserService.update', () => {
 
                 expect(usr).to.exist();
                 expect(usr.username).to.equal('u2');
+                expect(usr.githubid).to.not.exist();
             })
             .then(() => User.findById(user._id).exec())
             .then((usr) => {
