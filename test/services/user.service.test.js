@@ -9,7 +9,7 @@ const describe = lab.describe;
 const it = lab.it;
 const before = lab.before;
 const after = lab.after;
-const beforeEach = lab.beforeEach;
+// const beforeEach = lab.beforeEach;
 const afterEach = lab.afterEach;
 const expect = Code.expect;
 
@@ -93,5 +93,131 @@ describe('UserService.save', () => {
                 expect(`${users[0]._id}`).to.equal(`${user._id}`);
             });
     });
-
 });
+
+describe('UserService.read', () => {
+
+    it('should read an existing user', { plan: 2 }, () => {
+
+        const user = new User({
+            githubid: 'x',
+            username: 'u1',
+            email: 'u1@u1.com'
+        });
+
+        return user.save()
+            .then(() => UserService.read(user._id))
+            .then((usr) => {
+
+                expect(usr).to.exist();
+                expect(usr.username).to.equal('u1');
+            });
+    });
+
+    it('should not read an non existing user', { plan: 2 }, () => {
+
+        return  UserService.read(Mongoose.Types.ObjectId())
+            .catch((err) => {
+
+                expect(err).to.exists();
+                expect(err.output.statusCode).to.equal(HttpStatus.NOT_FOUND);
+            });
+    });
+});
+
+describe('UserService.update', () => {
+
+    it('should update an existing user', { plan: 4 }, () => {
+
+        const user = new User({
+            githubid: 'x',
+            username: 'u1',
+            email: 'u1@u1.com'
+        });
+
+        return user.save()
+            .then(() => UserService.update(user._id, { username: 'u2' }))
+            .then((usr) => {
+
+                expect(usr).to.exist();
+                expect(usr.username).to.equal('u2');
+            })
+            .then(() => User.findById(user._id).exec())
+            .then((usr) => {
+
+                expect(usr).to.exist();
+                expect(usr.username).to.equal('u2');
+            });
+    });
+
+    it('should not update an existing user if it creates a conflict', { plan: 4 }, () => {
+
+        const user = new User({
+            githubid: 'x',
+            username: 'u1',
+            email: 'u1@u1.com'
+        });
+
+        const user2 = new User({
+            githubid: 'x',
+            username: 'u2',
+            email: 'u1@u1.com'
+        });
+
+        return Promise.all([user.save(), user2.save()])
+            .then(() => UserService.update(user._id, { username: 'u2' }))
+            .catch((err) => {
+
+                expect(err).to.exists();
+                expect(err.output.statusCode).to.equal(HttpStatus.CONFLICT);
+            })
+            .then(() => User.findById(user._id).exec())
+            .then((usr) => {
+
+                expect(usr).to.exist();
+                expect(usr.username).to.equal('u1');
+            });
+    });
+
+    it('should not update an non existing user', { plan: 2 }, () => {
+
+        return  UserService.update(Mongoose.Types.ObjectId(), { username: 'u2' })
+            .catch((err) => {
+
+                expect(err).to.exists();
+                expect(err.output.statusCode).to.equal(HttpStatus.NOT_FOUND);
+            });
+    });
+});
+
+describe('UserService.translate', () => {
+
+    it('should translate an existing user', { plan: 3 }, () => {
+
+        const user = new User({
+            githubid: 'x',
+            username: 'u1',
+            email: 'u1@u1.com'
+        });
+
+        return user.save()
+            .then(() => UserService.translate(user.username))
+            .then((usr) => {
+
+                expect(usr).to.exist();
+                expect(usr.username).to.equal('u1');
+                expect(`${usr._id}`).to.equal(`${user._id}`);
+            });
+    });
+
+    it('should not translate an non existing user', { plan: 2 }, () => {
+
+        return  UserService.translate('a')
+            .catch((err) => {
+
+                expect(err).to.exists();
+                expect(err.output.statusCode).to.equal(HttpStatus.NOT_FOUND);
+            });
+    });
+});
+
