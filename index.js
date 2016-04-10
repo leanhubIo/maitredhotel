@@ -4,6 +4,7 @@ const AuthBearer = require('hapi-auth-bearer-token');
 
 const AuthService = require('./lib/services/auth.service');
 const Routes = require('./lib').routes;
+const User = require('./lib/models/user.model');
 
 exports.register = function (server, options, next) {
 
@@ -29,6 +30,7 @@ exports.register = function (server, options, next) {
 
             server.route(Routes);
         })
+        .then(() => User.ensureCustomIndexes())
         .then(() => next())
         .catch((err) => next(err));
 };

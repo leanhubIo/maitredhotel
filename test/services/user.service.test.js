@@ -9,7 +9,7 @@ const describe = lab.describe;
 const it = lab.it;
 const before = lab.before;
 const after = lab.after;
-// const beforeEach = lab.beforeEach;
+const beforeEach = lab.beforeEach;
 const afterEach = lab.afterEach;
 const expect = Code.expect;
 
@@ -22,6 +22,11 @@ Mongoose.Promise = global.Promise; // Personal choice
  * Connect once for all tests
  */
 before(() => Mongoose.connect(`mongodb://localhost/maitredhotel_test_user_service_${Date.now()}`));
+
+beforeEach(() => {
+
+    return User.ensureCustomIndexes();
+});
 
 /**
  * Disconnect after all tests
