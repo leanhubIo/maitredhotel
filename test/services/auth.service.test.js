@@ -192,8 +192,6 @@ describe('AuthService.validateToken', () => {
 
                 AuthService.validateToken('a', (err, auth, usr) => {
 
-                    console.log(arguments);
-
                     expect(err).to.not.exist();
                     expect(auth).to.be.true();
                     expect(usr).to.exist();
