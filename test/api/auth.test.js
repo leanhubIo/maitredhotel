@@ -94,7 +94,14 @@ describe('Plugin', () => {
 
     it('should not be instanciated in the server', { plan: 1 }, () => {
 
-        return getServer(getManifest())
+        const options = {
+            github: {
+                password: 'arqewhrgewhjrgewlkjbhkljhgrlkjrghelkj',
+                clientSecret: 'secret'
+            }
+        };
+
+        return getServer(getManifest(options))
             .catch((err) => {
 
                 expect(err).to.exist();

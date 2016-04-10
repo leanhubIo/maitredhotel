@@ -7,7 +7,7 @@ const Routes = require('./lib').routes;
 
 exports.register = function (server, options, next) {
 
-    if (!options || !options.github){
+    if (!options.github){
         return next(new Error('no options provided for github'));
     }
 
