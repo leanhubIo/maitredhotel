@@ -23,6 +23,7 @@
     "boom": "^3.1.2",
     "hapi-auth-bearer-token": "^4.0.2",
     "http-status-codes": "^1.0.6",
+    "joi": "^8.0.5",
     "mongoose": "^4.4.10",
     "proxyquire": "^1.7.4"
   },

@@ -284,4 +284,42 @@ describe('AuthService.githubHandler', () => {
                 expect(user.username).to.equal('u1');
             });
     });
+
+    it('should update an existing user', { plan: 5 }, () => {
+
+        const credentials = {
+            token: 'a',
+            profile: {
+                id: 1,
+                username: 'u1',
+                displayName: 'uu1',
+                email: 'u1@u1.com2',
+                raw: {
+                    avatar_url: 'helo'
+                }
+            }
+        };
+
+        const user0 = new User({
+            githubid: '1',
+            username: 'u1',
+            email: 'u1@u1.com'
+        });
+
+        return user0.save()
+            .then(() => AuthService.githubHandler(credentials))
+            .then((response) => {
+
+                expect(response).to.exist();
+                expect(response.token).to.exist();
+                return response.token;
+            })
+            .then((token) => User.findOne({ token }).select('+email').exec())
+            .then((user) => {
+
+                expect(user).to.exist();
+                expect(user.username).to.equal('u1');
+                expect(user.email).to.equal('u1@u1.com2');
+            });
+    });
 });

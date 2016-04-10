@@ -1,5 +1,8 @@
 'use strict';
 const Bell = require('bell');
+const AuthBearer = require('hapi-auth-bearer-token');
+
+const AuthService = require('./lib/services/auth.service');
 
 exports.register = function (server, options, next) {
 
@@ -11,10 +14,15 @@ exports.register = function (server, options, next) {
     ghOptions.scope = ['user:email', 'gist'];
     ghOptions.provider = 'github';
 
-    server.register(Bell)
+    server.register([Bell, AuthBearer])
         .then(() => {
 
             server.auth.strategy('github', 'bell', ghOptions);
+            server.auth.strategy('bearer', 'bearer-access-token', {
+                allowQueryToken: false,
+                validateFunc: AuthService.validateToken
+            });
+            server.auth.default('bearer');
         })
         .catch((err) => next(err));
 };
