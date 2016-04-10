@@ -157,6 +157,8 @@ describe('AuthService.findByToken', () => {
         });
 
         return user.save()
+            .then(() => User.find().exec())
+            .then(console.log)
             .then(() => AuthService.findByToken('a'))
             .then((usr) => {
 
