@@ -144,3 +144,75 @@ describe('AuthService.removeToken', () => {
             });
     });
 });
+
+describe('AuthService.findByToken', () => {
+
+    it('should find a user based on his token', { plan: 2 }, () => {
+
+        const user = new User({
+            githubid: 'x',
+            username: 'u1',
+            email: 'u1@u1.com',
+            token: 'a'
+        });
+
+        return user.save()
+            .then(() => AuthService.findByToken('a'))
+            .then((usr) => {
+
+                expect(usr).to.exist();
+                expect(usr.username).to.equal('u1');
+            });
+    });
+
+    it('should not find any user', { plan: 2 }, () => {
+
+        return AuthService.findByToken('a')
+            .catch((err) => {
+
+                expect(err).to.exist();
+                expect(err.output.statusCode).to.equal(HttpStatus.NOT_FOUND);
+            });
+    });
+});
+
+describe('AuthService.validateToken', () => {
+
+    it('should validate a user based on his token', { plan: 5 }, (done) => {
+
+        const user = new User({
+            githubid: 'x',
+            username: 'u1',
+            email: 'u1@u1.com',
+            token: 'a'
+        });
+
+        user.save()
+            .then(() => {
+
+                AuthService.validateToken('a', (err, auth, usr) => {
+
+                    expect(err).to.not.exist();
+                    expect(auth).to.be.true();
+                    expect(usr).to.exist();
+                    expect(usr.scope).to.have.length(1);
+                    expect(usr.scope[0]).to.equal(`user-${user._id}`);
+                    done();
+                });
+            });
+    });
+
+    it('should not validate a user based on his token', { plan: 3 }, (done) => {
+
+        AuthService.validateToken('a', (err, auth, usr) => {
+
+            expect(err).to.exist();
+            expect(auth).to.be.false();
+            expect(usr).to.not.exist();
+            done();
+        });
+
+    });
+
+
+});
