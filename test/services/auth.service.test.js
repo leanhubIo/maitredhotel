@@ -197,7 +197,7 @@ describe('AuthService.validateToken', () => {
                     expect(usr).to.exist();
                     expect(usr.scope).to.have.length(1);
                     expect(usr.scope[0]).to.equal(`user-${user._id}`);
-                    done();
+                    return done();
                 });
             });
     });
@@ -209,7 +209,7 @@ describe('AuthService.validateToken', () => {
             expect(err).to.exist();
             expect(auth).to.be.false();
             expect(usr).to.not.exist();
-            done();
+            return done();
         });
 
     });
