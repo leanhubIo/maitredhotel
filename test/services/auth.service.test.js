@@ -213,6 +213,75 @@ describe('AuthService.validateToken', () => {
         });
 
     });
+});
 
+describe('AuthService.githubHandler', () => {
 
+    it('should login a new user', { plan: 4 }, () => {
+
+        const credentials = {
+            token: 'a',
+            profile: {
+                id: 1,
+                username: 'u1',
+                displayName: 'uu1',
+                email: 'u1@test.fr',
+                raw: {
+                    avatar_url: 'helo'
+                }
+            }
+
+        };
+
+        return AuthService.githubHandler(credentials)
+            .then((response) => {
+
+                expect(response).to.exist();
+                expect(response.token).to.exist();
+                return response.token;
+            })
+            .then((token) => User.findOne({ token }).exec())
+            .then((user) => {
+
+                expect(user).to.exist();
+                expect(user.username).to.equal('u1');
+            });
+    });
+
+    it('should login an existing user', { plan: 4 }, () => {
+
+        const credentials = {
+            token: 'a',
+            profile: {
+                id: 1,
+                username: 'u1',
+                displayName: 'uu1',
+                email: 'u1@u1.fr',
+                raw: {
+                    avatar_url: 'helo'
+                }
+            }
+        };
+
+        const user0 = new User({
+            githubid: '1',
+            username: 'u1',
+            email: 'u1@u1.com'
+        });
+
+        return user0.save()
+            .then(() => AuthService.githubHandler(credentials))
+            .then((response) => {
+
+                expect(response).to.exist();
+                expect(response.token).to.exist();
+                return response.token;
+            })
+            .then((token) => User.findOne({ token }).exec())
+            .then((user) => {
+
+                expect(user).to.exist();
+                expect(user.username).to.equal('u1');
+            });
+    });
 });
