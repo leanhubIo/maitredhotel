@@ -1,6 +1,6 @@
 {
   "name": "maitredhotel",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "always here to gently welcome you",
   "main": "index.js",
   "scripts": {
