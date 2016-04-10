@@ -1,6 +1,5 @@
 'use strict';
 const Path = require('path');
-const Bell = require('bell');
 const HttpStatus = require('http-status-codes'); // list of HTTP status
 const Mongoose = require('mongoose');
 const Code = require('code'); // assertion lib
@@ -62,94 +61,9 @@ const getManifest = function (options) {
 const servOptions = { relativeTo: Path.join(__dirname, '../../') };
 const getServer = (manifest) => Glue.compose(manifest, servOptions);
 
-describe('Plugin', () => {
+describe('User API', () => {
 
-    it('should be instanciated in the server', { plan: 1 }, () => {
-
-        const options = {
-            github: {
-                password: 'arqewhrgewhjrgewlkjbhkljhgrlkjrghelkj',
-                clientId: 'id',
-                clientSecret: 'secret'
-            }
-        };
-
-        return getServer(getManifest(options))
-            .then((server) => {
-
-                expect(server).to.exist();
-            });
-    });
-
-    it('should not be instanciated in the server', { plan: 1 }, () => {
-
-        const options = {};
-
-        return getServer(getManifest(options))
-            .catch((err) => {
-
-                expect(err).to.exist();
-            });
-    });
-
-    it('should not be instanciated in the server', { plan: 1 }, () => {
-
-        return getServer(getManifest())
-            .catch((err) => {
-
-                expect(err).to.exist();
-            });
-    });
-});
-
-describe('Auth.login', () => {
-
-    it('should auth a user from a simulated github', { plan: 3 }, () => {
-
-        const options = {
-            github: {
-                password: 'arqewhrgewhjrgewlkjbhkljhgrlkjrghelkj',
-                clientId: 'id',
-                clientSecret: 'secret'
-            }
-        };
-
-        const injection = { method: 'GET', url: '/login' };
-
-        const credentials = {
-            token: 'a',
-            profile: {
-                id: 1,
-                username: 'u12',
-                displayName: 'uu1',
-                email: 'u1@u1.com2',
-                raw: {
-                    avatar_url: 'helo'
-                }
-            }
-        };
-
-        Bell.simulate((request, next) => next(null, credentials));
-
-        return getServer(getManifest(options))
-            .then((server) => server.inject(injection))
-            .then((response) => {
-
-                expect(response.statusCode).to.equal(HttpStatus.OK);
-            })
-            .then(() => User.find().exec())
-            .then((users) => {
-
-                expect(users).to.have.length(1);
-                expect(users[0].username).to.equal('u12');
-            })
-            .then(() => Bell.simulate(false));
-    });
-});
-
-describe('Auth.logout', () => {
-
-    it('should logout a user', { plan: 2 }, () => {
+    it('should read the logged-in user', { plan: 3 }, () => {
 
         const options = {
             github: {
@@ -168,7 +82,7 @@ describe('Auth.logout', () => {
 
         const injection = {
             method: 'GET',
-            url: '/logout',
+            url: '/users/me',
             headers: { authorization: `Bearer ${user.token}` } };
 
         return user.save()
@@ -177,11 +91,88 @@ describe('Auth.logout', () => {
             .then((response) => {
 
                 expect(response.statusCode).to.equal(HttpStatus.OK);
+                return JSON.parse(response.payload);
             })
-            .then(() => User.findById(user._id).select('+token').exec())
-            .then((usr) => {
+            .then((payload) => {
 
-                expect(usr.token).to.not.exist();
+                expect(payload.username).to.equal('u1');
+                expect(`${payload._id}`).to.equal(`${user._id}`);
             });
     });
+
+    it('should translate a user', { plan: 3 }, () => {
+
+        const options = {
+            github: {
+                password: 'arqewhrgewhjrgewlkjbhkljhgrlkjrghelkj',
+                clientId: 'id',
+                clientSecret: 'secret'
+            }
+        };
+
+        const user = new User({
+            githubid: 'x',
+            username: 'u1',
+            email: 'u1@u1.com',
+            token: 'a'
+        });
+
+        const injection = {
+            method: 'GET',
+            url: `/users/translate/${user.username}`
+        };
+
+        return user.save()
+            .then(() => getServer(getManifest(options)))
+            .then((server) => server.inject(injection))
+            .then((response) => {
+
+                expect(response.statusCode).to.equal(HttpStatus.OK);
+                return JSON.parse(response.payload);
+            })
+            .then((payload) => {
+
+                expect(payload.username).to.equal('u1');
+                expect(`${payload._id}`).to.equal(`${user._id}`);
+            });
+    });
+
+    it('should read a user', { plan: 3 }, () => {
+
+        const options = {
+            github: {
+                password: 'arqewhrgewhjrgewlkjbhkljhgrlkjrghelkj',
+                clientId: 'id',
+                clientSecret: 'secret'
+            }
+        };
+
+        const user = new User({
+            githubid: 'x',
+            username: 'u1',
+            email: 'u1@u1.com',
+            token: 'a'
+        });
+
+        const injection = {
+            method: 'GET',
+            url: `/users/${user._id}`
+        };
+
+        return user.save()
+            .then(() => getServer(getManifest(options)))
+            .then((server) => server.inject(injection))
+            .then((response) => {
+
+                expect(response.statusCode).to.equal(HttpStatus.OK);
+                return JSON.parse(response.payload);
+            })
+            .then((payload) => {
+
+                expect(payload.username).to.equal('u1');
+                expect(`${payload._id}`).to.equal(`${user._id}`);
+            });
+    });
+
 });
+
