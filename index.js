@@ -3,11 +3,12 @@ const Bell = require('bell');
 const AuthBearer = require('hapi-auth-bearer-token');
 
 const AuthService = require('./lib/services/auth.service');
+const Routes = require('./lib').routes;
 
 exports.register = function (server, options, next) {
 
     if (!options || !options.github){
-        return next('no options provided for github');
+        return next(new Error('no options provided for github'));
     }
 
     const ghOptions = options.github;
@@ -24,6 +25,11 @@ exports.register = function (server, options, next) {
             });
             server.auth.default('bearer');
         })
+        .then(() => {
+
+            server.route(Routes);
+        })
+        .then(() => next())
         .catch((err) => next(err));
 };
 
