@@ -22,7 +22,7 @@ exports.register = function (server, options, next) {
             server.auth.strategy('github', 'bell', ghOptions);
             server.auth.strategy('bearer', 'bearer-access-token', {
                 allowQueryToken: false,
-                validateFunc: AuthService.validateToken
+                validateFunc: AuthService.getValidateToken(server)
             });
             server.auth.default('bearer');
         })

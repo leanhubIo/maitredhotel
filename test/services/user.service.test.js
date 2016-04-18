@@ -195,6 +195,16 @@ describe('UserService.update', () => {
                 expect(err.output.statusCode).to.equal(HttpStatus.NOT_FOUND);
             });
     });
+
+    it('should not update an non existing user', { plan: 2 }, () => {
+
+        return  UserService.update(Mongoose.Types.ObjectId(), { username: 'u2' }, { log: console.log.bind({}, new Date(), 'USER: ') })
+            .catch((err) => {
+
+                expect(err).to.exists();
+                expect(err.output.statusCode).to.equal(HttpStatus.NOT_FOUND);
+            });
+    });
 });
 
 describe('UserService.translate', () => {
